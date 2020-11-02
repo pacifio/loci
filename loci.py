@@ -60,13 +60,15 @@ class Loci:
 
 			data[file] = lines
 
+		max_len = len(max(data.keys(), key=len))
+
 		if len(data.items()) == 0:
 			print("No file found under extension %s" % (self.lang['extension']))
 		else :
-			print ("{:<30} {:<15}".format('Filename','Linecount'))
+			print("Filename" + ' ' * int((max_len / 2)) + ' Linecount')
 
 		for (k, v) in data.items():
-			print("{:<30} {:<15}".format(k, v))
+			print("%s" % k + ' ' * (max_len - len(k)) + ' %s' % v)
 
 		print()
 
