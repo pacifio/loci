@@ -23,9 +23,13 @@ class Loci:
 		self.input = ''
 		self.load_json()
 
+	def load_home_file(self):
+		user = os.getlogin()
+		return f'/Users/{user}/.loci.json'
+
 	def load_json(self):
-		if(os.path.exists('/Users/adib/.loci.json')):
-			json_file = open('/Users/adib/.loci.json', 'r')
+		if(os.path.exists(self.load_home_file())):
+			json_file = open(self.load_home_file(), 'r')
 			self.json = json.loads(''.join(json_file.readlines()))
 			json_file.close()
 
@@ -33,8 +37,8 @@ class Loci:
 			# TODO
 			# See online docs on how to make a file
 
-			os.mkdir('~/.loci.json')
-			json_file = open('~/.loci.json', 'w')
+			os.mkdir(self.load_home_file())
+			json_file = open(self.load_home_file(), 'w')
 			json_file.writelines(PRE_JSON)
 			self.json = json.loads(PRE_JSON)
 			json_file.close()
@@ -50,8 +54,6 @@ class Loci:
 		print()
 
 		extension_files = []
-
-		print()
 
 		for root, dirs, files in os.walk('./'):
 			for name in files:
@@ -76,7 +78,7 @@ class Loci:
 			max_len = len(max(data.keys(), key=len))
 
 		for (k, v) in data.items():
-			print("%s" % k + ' ' * (max_len - len(k)) + ' %s' % v)
+			print("\"%s\"" % k + ' ' * (max_len - len(k)) + ' %s' % v)
 			total += v
 		
 		print()
@@ -90,18 +92,28 @@ class Loci:
 		lowest = min(data.values())
 		highest_data = {}
 		lowest_data = {}
+
+		empty_files = []
 		
 		for (k, v) in data.items():
 			if (v == highest):
 				highest_data = {k:v}
 			if (v == lowest):
 				lowest_data = {k:v}
+			if (v == 0):
+				empty_files.append(k)
 
 		for (k, v) in highest_data.items():
 			print("Biggest file : \"%s\" with %d lines" % (k, v))	
 
-		for (k, v) in highest_data.items():
+		for (k, v) in lowest_data.items():
 			print("Smallest file : \"%s\" with %d lines" % (k, v))
+
+		if len(empty_files) != 0:
+			print()
+			print("Empty files")
+			for file in empty_files:
+				print("\"%s\"" % file)
 
 	def show_json(self):
 		print(self.json)
