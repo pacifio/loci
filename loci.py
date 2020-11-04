@@ -5,25 +5,15 @@ Welcome to LOCI - Lines Of Codes Indicator
 
 This is a simple program that finds total lines of codes you've written
 
-Update ~/.loc.json file to update ignored files to accuretly count how many lines
+Update ~/.loci.json file to update ignored files to accuretly count how many lines
 of codes you've written .
 
 The ./example folder is there to test . It contains nothing of the logix
 """
 
-"""
-TODO
-
-1 > A nicely formatted box layout to show results
-2 > Highest coded file (max int in an array)
-3 > Lowest coded file (min int in an array)
-4 > Total lines of code
-5 > Status of which dir (just show os.currdir nicely)
-6 > Create loci.json if not exists from PRE_JSON
-"""
-
 import os
 import json
+import sys
 from data import PRE_JSON
 
 class Loci:
@@ -34,7 +24,21 @@ class Loci:
 		self.load_json()
 
 	def load_json(self):
-		self.json = json.loads(PRE_JSON)
+		if(os.path.exists('/Users/adib/.loci.json')):
+			json_file = open('/Users/adib/.loci.json', 'r')
+			self.json = json.loads(''.join(json_file.readlines()))
+			json_file.close()
+
+		else:
+			# TODO
+			# See online docs on how to make a file
+
+			os.mkdir('~/.loci.json')
+			json_file = open('~/.loci.json', 'w')
+			json_file.writelines(PRE_JSON)
+			self.json = json.loads(PRE_JSON)
+			json_file.close()
+
 
 	def loop_over_json(self):
 		for k, v in self.json.items():
@@ -42,6 +46,9 @@ class Loci:
 				self.lang = self.json[k]
 
 	def exec(self):
+		print('Current directory \"%s\"' % (os.path.abspath(os.curdir)))
+		print()
+
 		extension_files = []
 
 		print()
@@ -60,23 +67,50 @@ class Loci:
 
 			data[file] = lines
 
-		max_len = len(max(data.keys(), key=len))
+		max_len = 0
+		total = 0
 
 		if len(data.items()) == 0:
 			print("No file found under extension %s" % (self.lang['extension']))
-		else :
-			print("Filename" + ' ' * int((max_len / 2)) + ' Linecount')
+		else:
+			max_len = len(max(data.keys(), key=len))
 
 		for (k, v) in data.items():
 			print("%s" % k + ' ' * (max_len - len(k)) + ' %s' % v)
-
+			total += v
+		
 		print()
+		print("Total %d lines" % (total))
+		print()
+		self.high(data)
+		print()
+
+	def high(self, data: dict):
+		highest = max(data.values())
+		lowest = min(data.values())
+		highest_data = {}
+		lowest_data = {}
+		
+		for (k, v) in data.items():
+			if (v == highest):
+				highest_data = {k:v}
+			if (v == lowest):
+				lowest_data = {k:v}
+
+		for (k, v) in highest_data.items():
+			print("Biggest file : \"%s\" with %d lines" % (k, v))	
+
+		for (k, v) in highest_data.items():
+			print("Smallest file : \"%s\" with %d lines" % (k, v))
 
 	def show_json(self):
 		print(self.json)
 
 	def run(self):
-		extension = input('file extension >> ')
+		try:
+			extension = sys.argv[1]
+		except:
+			extension = ""
 		
 		self.input = extension
 		self.loop_over_json()
