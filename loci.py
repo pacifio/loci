@@ -8,7 +8,7 @@ This is a simple program that finds total lines of codes you've written
 Update ~/.loci.json file to update ignored files to accuretly count how many lines
 of codes you've written .
 
-The ./example folder is there to test . It contains nothing of the logix
+The ./example folder is there to test . It contains nothing of the logic
 """
 
 import os
@@ -18,9 +18,9 @@ from data import PRE_JSON
 
 class Loci:
 	def __init__(self):
-		self.json = {}
-		self.lang = {}
-		self.input = ''
+		self.json:dict = {}
+		self.lang:dict = {}
+		self.input:str = ''
 		self.load_json()
 
 	def load_home_file(self):
@@ -50,6 +50,7 @@ class Loci:
 				self.lang = self.json[k]
 
 	def exec(self):
+		print()
 		print('Current directory \"%s\"' % (os.path.abspath(os.curdir)))
 		print()
 
@@ -80,21 +81,21 @@ class Loci:
 		for (k, v) in data.items():
 			print("\"%s\"" % k + ' ' * (max_len - len(k)) + ' %s' % v)
 			total += v
-		
+
 		print()
 		print("Total %d lines" % (total))
 		print()
-		self.high(data)
+		self.high_low(data)
 		print()
 
-	def high(self, data: dict):
+	def high_low(self, data: dict):
 		highest = max(data.values())
 		lowest = min(data.values())
 		highest_data = {}
 		lowest_data = {}
 
 		empty_files = []
-		
+
 		for (k, v) in data.items():
 			if (v == highest):
 				highest_data = {k:v}
@@ -104,7 +105,7 @@ class Loci:
 				empty_files.append(k)
 
 		for (k, v) in highest_data.items():
-			print("Biggest file : \"%s\" with %d lines" % (k, v))	
+			print("Biggest file : \"%s\" with %d lines" % (k, v))
 
 		for (k, v) in lowest_data.items():
 			print("Smallest file : \"%s\" with %d lines" % (k, v))
@@ -123,7 +124,7 @@ class Loci:
 			extension = sys.argv[1]
 		except:
 			extension = ""
-		
+
 		self.input = extension
 		self.loop_over_json()
 
