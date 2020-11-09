@@ -5,7 +5,7 @@ Welcome to LOCI - Lines Of Codes Indicator
 
 This is a simple program that finds total lines of codes you've written
 
-Update ~/.loci.json file to update ignored files to accuretly count how many lines
+Update ~/.config/.loci.json file to update ignored files to accuretly count how many lines
 of codes you've written .
 
 The ./example folder is there to test . It contains nothing of the logic
@@ -25,7 +25,7 @@ class Loci:
         self.load_json()
 
     def load_home_file(self):
-        return os.path.join(os.path.expanduser('~'), '.loci.json')
+        return os.path.join(os.path.expanduser('~/.config'), 'loci.json')
 
     def load_json(self):
         if(os.path.exists(self.load_home_file())):
