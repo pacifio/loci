@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import argparse
 """
 Welcome to LOCI - Lines Of Codes Indicator
 
@@ -44,14 +44,14 @@ class Loci:
             if self.input in v['ids']:
                 self.lang = self.json[k]
 
-    def exec(self):
+    def exec(self, directory):
         print()
-        print('Current directory \"%s\"' % (os.path.abspath(os.curdir)))
+        print('Directory \"%s\"' % (os.path.abspath(directory)))
         print()
 
         extension_files = []
 
-        for root, _, files in os.walk('./'):
+        for root, _, files in os.walk(os.path.abspath(directory)):
             for name in files:
                 formatted = os.path.join(root, name)
                 if(formatted).endswith(self.lang['extension']):
@@ -115,11 +115,7 @@ class Loci:
     def show_json(self):
         print(self.json)
 
-    def run(self):
-        try:
-            extension = sys.argv[1]
-        except:
-            extension = ""
+    def run(self, extension, directory):
 
         self.input = extension
         self.loop_over_json()
@@ -127,9 +123,20 @@ class Loci:
         if self.lang == {}:
             print("Nothing found")
         else:
-            self.exec()
+            self.exec(directory)
 
+
+def create_parser():
+    parser = argparse.ArgumentParser(description='Line of Code Indicator')
+    parser.add_argument('extension', help='file extension to parse')
+    parser.add_argument('-i', '--input', nargs=1, help='files to')
+    return parser
 
 if __name__ == '__main__':
+    parser = create_parser()
+    args = parser.parse_args()
+
+    directory = args.input[0] if args.input else os.curdir
+
     loci = Loci()
-    loci.run()
+    loci.run(args.extension, directory)
