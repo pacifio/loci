@@ -1,4 +1,4 @@
-#! /usr/local/bin/python3
+#!/usr/bin/env python3
 
 """
 Welcome to LOCI - Lines Of Codes Indicator
@@ -16,123 +16,120 @@ import json
 import sys
 from data import PRE_JSON
 
+
 class Loci:
-	def __init__(self):
-		self.json:dict = {}
-		self.lang:dict = {}
-		self.input:str = ''
-		self.load_json()
+    def __init__(self):
+        self.json: dict = {}
+        self.lang: dict = {}
+        self.input: str = ''
+        self.load_json()
 
-	def load_home_file(self):
-		user = os.getlogin()
-		return f'/Users/{user}/.loci.json'
+    def load_home_file(self):
+        return os.path.join(os.path.expanduser('~'), '.loci.json')
 
-	def load_json(self):
-		if(os.path.exists(self.load_home_file())):
-			json_file = open(self.load_home_file(), 'r')
-			self.json = json.loads(''.join(json_file.readlines()))
-			json_file.close()
+    def load_json(self):
+        if(os.path.exists(self.load_home_file())):
+            json_file = open(self.load_home_file(), 'r')
+            self.json = json.loads(''.join(json_file.readlines()))
+            json_file.close()
 
-		else:
-			# TODO
-			# See online docs on how to make a file
+        else:
+            json_file = open(self.load_home_file(), 'x')
+            json_file.writelines(PRE_JSON)
+            self.json = json.loads(PRE_JSON)
+            json_file.close()
 
-			os.mkdir(self.load_home_file())
-			json_file = open(self.load_home_file(), 'w')
-			json_file.writelines(PRE_JSON)
-			self.json = json.loads(PRE_JSON)
-			json_file.close()
+    def loop_over_json(self):
+        for k, v in self.json.items():
+            if self.input in v['ids']:
+                self.lang = self.json[k]
 
+    def exec(self):
+        print()
+        print('Current directory \"%s\"' % (os.path.abspath(os.curdir)))
+        print()
 
-	def loop_over_json(self):
-		for k, v in self.json.items():
-			if self.input in v['ids']:
-				self.lang = self.json[k]
+        extension_files = []
 
-	def exec(self):
-		print()
-		print('Current directory \"%s\"' % (os.path.abspath(os.curdir)))
-		print()
+        for root, _, files in os.walk('./'):
+            for name in files:
+                formatted = os.path.join(root, name)
+                if(formatted).endswith(self.lang['extension']):
+                    extension_files.append(formatted)
 
-		extension_files = []
+        data = {}
+        for file in extension_files:
+            read = open(file, 'r')
+            lines = len(read.readlines())
+            read.close()
 
-		for root, dirs, files in os.walk('./'):
-			for name in files:
-				formatted = os.path.join(root, name)
-				if(formatted).endswith(self.lang['extension']):
-					extension_files.append(formatted)
+            data[file] = lines
 
-		data = {}
-		for file in extension_files:
-			read = open(file, 'r')
-			lines = len(read.readlines())
-			read.close()
+        max_len = 0
+        total = 0
 
-			data[file] = lines
+        if len(data.items()) == 0:
+            print("No file found under extension %s" %
+                  (self.lang['extension']))
+        else:
+            max_len = len(max(data.keys(), key=len))
 
-		max_len = 0
-		total = 0
+        for (k, v) in data.items():
+            print("\"%s\"" % k + ' ' * (max_len - len(k)) + ' %s' % v)
+            total += v
 
-		if len(data.items()) == 0:
-			print("No file found under extension %s" % (self.lang['extension']))
-		else:
-			max_len = len(max(data.keys(), key=len))
+        print()
+        print("Total %d lines" % (total))
+        print()
+        self.high_low(data)
+        print()
 
-		for (k, v) in data.items():
-			print("\"%s\"" % k + ' ' * (max_len - len(k)) + ' %s' % v)
-			total += v
+    def high_low(self, data: dict):
+        highest = max(data.values())
+        lowest = min(data.values())
+        highest_data = {}
+        lowest_data = {}
 
-		print()
-		print("Total %d lines" % (total))
-		print()
-		self.high_low(data)
-		print()
+        empty_files = []
 
-	def high_low(self, data: dict):
-		highest = max(data.values())
-		lowest = min(data.values())
-		highest_data = {}
-		lowest_data = {}
+        for (k, v) in data.items():
+            if (v == highest):
+                highest_data = {k: v}
+            if (v == lowest):
+                lowest_data = {k: v}
+            if (v == 0):
+                empty_files.append(k)
 
-		empty_files = []
+        for (k, v) in highest_data.items():
+            print("Biggest file : \"%s\" with %d lines" % (k, v))
 
-		for (k, v) in data.items():
-			if (v == highest):
-				highest_data = {k:v}
-			if (v == lowest):
-				lowest_data = {k:v}
-			if (v == 0):
-				empty_files.append(k)
+        for (k, v) in lowest_data.items():
+            print("Smallest file : \"%s\" with %d lines" % (k, v))
 
-		for (k, v) in highest_data.items():
-			print("Biggest file : \"%s\" with %d lines" % (k, v))
+        if len(empty_files) != 0:
+            print()
+            print("Empty files")
+            for file in empty_files:
+                print("\"%s\"" % file)
 
-		for (k, v) in lowest_data.items():
-			print("Smallest file : \"%s\" with %d lines" % (k, v))
+    def show_json(self):
+        print(self.json)
 
-		if len(empty_files) != 0:
-			print()
-			print("Empty files")
-			for file in empty_files:
-				print("\"%s\"" % file)
+    def run(self):
+        try:
+            extension = sys.argv[1]
+        except:
+            extension = ""
 
-	def show_json(self):
-		print(self.json)
+        self.input = extension
+        self.loop_over_json()
 
-	def run(self):
-		try:
-			extension = sys.argv[1]
-		except:
-			extension = ""
+        if self.lang == {}:
+            print("Nothing found")
+        else:
+            self.exec()
 
-		self.input = extension
-		self.loop_over_json()
-
-		if self.lang == {}:
-			print("Nothing found")
-		else:
-			self.exec()
 
 if __name__ == '__main__':
-	loci = Loci()
-	loci.run()
+    loci = Loci()
+    loci.run()
