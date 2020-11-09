@@ -54,4 +54,4 @@ and
 loci.py flutter
 ```
 
-both of these commands are the same . These are ids . You can add more languages in the main configuration file which lives at ```~/.loci.json```
+both of these commands are the same . These are ids . You can add more languages in the main configuration file which lives at ```~/.config/loci.json```
