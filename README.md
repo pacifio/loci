@@ -25,7 +25,7 @@ Suported languages
 * c
 * c++
 
-You can add custom languages . The configuration file lives under ```~/.loci.json```
+You can add custom languages . The configuration file lives under ```~/.config/loci.json```
 
 The configuration for your language is set like this
 
