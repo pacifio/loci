@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-import argparse
+
 """
 Welcome to LOCI - Lines Of Codes Indicator
+:sp
 
 This is a simple program that finds total lines of codes you've written
 
@@ -14,6 +15,8 @@ The ./example folder is there to test . It contains nothing of the logic
 import os
 import json
 import sys
+import argparse
+from tabulate import tabulate
 from data import PRE_JSON
 
 
@@ -74,8 +77,9 @@ class Loci:
         else:
             max_len = len(max(data.keys(), key=len))
 
+        print(tabulate(data.items(), headers=["Filename", "Lines"], tablefmt="grid"))
+        
         for (k, v) in data.items():
-            print("\"%s\"" % k + ' ' * (max_len - len(k)) + ' %s' % v)
             total += v
 
         print()
